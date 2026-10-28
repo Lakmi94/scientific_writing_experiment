@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loading Store...</title>
+  <script>
+    const conditions = ['v1.html', 'v2.html', 'v3.html'];
+
+    // Optional: Keep the same condition if the participant refreshes the page
+    let assigned = sessionStorage.getItem('assigned_condition');
+    if (!assigned) {
+      const randomIndex = Math.floor(Math.random() * conditions.length);
+      assigned = conditions[randomIndex];
+      sessionStorage.setItem('assigned_condition', assigned);
+    }
+
+    // Redirect immediately without cluttering browser back-button history
+    window.location.replace(assigned);
+  </script>
+</head>
+<body></body>
+</html>
