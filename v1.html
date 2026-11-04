@@ -14969,8 +14969,6 @@
                                    <script>
 (function () {
   // 1. Paste your Google Apps Script Web App URL here:
-  const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbw7TC17nQ4m85L8q4NIDy9XO7fyoeKQj2faC-AuE3qXLLBaALB94xwzHz1p2oRKPRIjMg/exec";
-
   // 2. Paste your Google Form link here (so they can click it manually after finishing the task):
   const SURVEY_URL = "https://docs.google.com/forms/d/e/1FAIpQLScgtZyLFsEpiG6cDTbMQ_fp0tYvLW-DMKENiVpP5coipRUKog/viewform";
 
@@ -15021,12 +15019,16 @@
     };
 
     // Send data to Google Sheets in the background
-    const submission = fetch(ENDPOINT_URL, {
+    const submission = fetch("/api/submit", {
       method: "POST",
-      mode: "no-cors",
       keepalive: true,
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
+    }).then(response => {
+      if (!response.ok) throw new Error(`Submission endpoint returned HTTP ${response.status}`);
+      return response.json();
+    }).then(result => {
+      if (result.status !== "success") throw new Error("Submission endpoint did not confirm success");
     });
 
     // Transform the pop-up content to show a manual link to the survey instead of auto-opening it
@@ -15050,7 +15052,7 @@
 
     submission.then(() => {
       const status = document.getElementById("sheets-submission-status");
-      if (status) status.textContent = "Data submission request sent.";
+      if (status) status.textContent = "Data saved to Google Sheets.";
     }).catch(error => {
       console.error("Google Sheets submission failed:", error);
       const status = document.getElementById("sheets-submission-status");
