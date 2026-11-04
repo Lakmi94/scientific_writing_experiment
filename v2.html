@@ -12418,10 +12418,5 @@
     }
   }, true);
 
-  window.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "hidden" && !hasLogged) {
-      logAndShowNextStep("abandoned_or_closed_tab");
-    }
-  });
 })();
 </script>
