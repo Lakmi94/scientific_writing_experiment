@@ -16,7 +16,7 @@
 <link rel=alternate hreflang=x-default href=https://kroppsbutiken.se/>
 <meta name=viewport content="width=device-width">
 <meta property=og:site_name content="Kroppsbutiken - SE">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https:; connect-src 'self' https://script.google.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
 <meta property=og:url content=https://kroppsbutiken.se/>
 <meta property=og:title content="Kroppsbutiken - Säg adjö till smärta, hej till välbefinnande">
 <meta property=og:type content=website>
@@ -12338,7 +12338,7 @@
     };
 
     // Send data to Google Sheets in the background
-    fetch(ENDPOINT_URL, {
+    const submission = fetch(ENDPOINT_URL, {
       method: "POST",
       mode: "no-cors",
       keepalive: true,
@@ -12355,6 +12355,7 @@
           <p style="font-size: 14px; line-height: 1.5; margin-bottom: 20px;">
             Thank you for completing this step of the experiment. Please proceed to the questionnaire to finish the evaluation.
           </p>
+          <p id="sheets-submission-status" role="status" style="font-size: 13px; margin-bottom: 16px;">Sending experiment data…</p>
           <a href="${SURVEY_URL}?usp=pp_url&entry.123456789=${encodeURIComponent(participantId + "_" + condition)}" 
              target="_blank" 
              style="display: inline-block; background-color: #162b75; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 14px;">
@@ -12363,6 +12364,15 @@
         </div>
       `;
     }
+
+    submission.then(() => {
+      const status = document.getElementById("sheets-submission-status");
+      if (status) status.textContent = "Data submission request sent.";
+    }).catch(error => {
+      console.error("Google Sheets submission failed:", error);
+      const status = document.getElementById("sheets-submission-status");
+      if (status) status.textContent = "Could not send experiment data. Please notify the researcher.";
+    });
   }
 
   // Listen for user clicks on the pop-up buttons
