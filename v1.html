@@ -88,6 +88,36 @@
         type=image/png><style>.sf-hidden{display:non}</style><meta
         http-equiv=content-security-policy
         content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; font-src 'self' data:; img-src 'self' data:; style-src 'unsafe-inline'; media-src 'self' data:; script-src 'unsafe-inline' data:; object-src 'self' data:; frame-src 'self' data:; form-action 'none'; base-uri 'none';">
+        <style>
+        @media (max-width: 600px) {
+          [role="dialog"] [data-testid="POPUP"] {
+            width: calc(100vw - 16px) !important;
+            max-width: calc(100vw - 16px) !important;
+          }
+
+          [role="dialog"] [data-testid="POPUP"] > div {
+            max-width: 100% !important;
+          }
+
+          [role="dialog"] form.klaviyo-form {
+            box-sizing: border-box !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            max-height: calc(100vh - 24px) !important;
+            overflow-y: auto !important;
+          }
+
+          [role="dialog"] form.klaviyo-form > div:first-child {
+            min-height: 0 !important;
+          }
+
+          [role="dialog"] form.klaviyo-form img {
+            max-width: 100% !important;
+            height: auto !important;
+          }
+        }
+        </style>
         <body
         class="template-index site-header-sticky klaviyo-prevent-body-scrolling"
         data-instant-allow-query-string style=isolation:isolate><svg

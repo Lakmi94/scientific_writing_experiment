@@ -17,6 +17,36 @@
 <meta name=viewport content="width=device-width">
 <meta property=og:site_name content="Kroppsbutiken - SE">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
+<style>
+@media (max-width: 600px) {
+  [role="dialog"] [data-testid="POPUP"] {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+  }
+
+  [role="dialog"] [data-testid="POPUP"] > div {
+    max-width: 100% !important;
+  }
+
+  [role="dialog"] form.klaviyo-form {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    max-height: calc(100vh - 24px) !important;
+    overflow-y: auto !important;
+  }
+
+  [role="dialog"] form.klaviyo-form > div:first-child {
+    min-height: 0 !important;
+  }
+
+  [role="dialog"] form.klaviyo-form img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+</style>
 <meta property=og:url content=https://kroppsbutiken.se/>
 <meta property=og:title content="Kroppsbutiken - Säg adjö till smärta, hej till välbefinnande">
 <meta property=og:type content=website>
