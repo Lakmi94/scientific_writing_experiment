@@ -14989,6 +14989,18 @@
 
   const startTime = performance.now();
   let hasLogged = false;
+  let emailWasEntered = false;
+
+  document.addEventListener("input", function (event) {
+    const input = event.target;
+    if (
+      input.matches('input[type="email"]') &&
+      input.closest(".klaviyo-form") &&
+      input.value.trim()
+    ) {
+      emailWasEntered = true;
+    }
+  }, true);
 
   function logAndShowNextStep(actionType) {
     if (hasLogged) return;
@@ -14997,8 +15009,8 @@
     const deliberationMs = Math.round(performance.now() - startTime);
     const deliberationSec = +(deliberationMs / 1000).toFixed(2);
 
-    const emailInput = document.querySelector('input[type="email"], input[placeholder*="EMAIL" i]');
-    const emailEntered = emailInput ? emailInput.value.trim().length > 0 : false;
+    const emailInput = document.querySelector('.klaviyo-form input[type="email"]');
+    const emailEntered = emailWasEntered || Boolean(emailInput?.value.trim());
 
     const checkboxes = document.querySelectorAll('.klaviyo-form input[type="checkbox"], [role="dialog"] input[type="checkbox"]');
     let checkboxSummary = "none";
