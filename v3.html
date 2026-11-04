@@ -12174,6 +12174,18 @@
 
   const startTime = performance.now();
   let hasLogged = false;
+  let emailWasEntered = false;
+
+  function getPopupContainer() {
+    return document.querySelector('[role="dialog"]') || document.querySelector(".klaviyo-form");
+  }
+
+  function hasEmailEntry() {
+    const popup = getPopupContainer();
+    const emailInput = popup?.querySelector('input[type="email"], input[placeholder*="EMAIL" i]');
+    if (emailInput && emailInput.value.trim()) emailWasEntered = true;
+    return emailWasEntered;
+  }
 
   function logAndShowNextStep(actionType) {
     if (hasLogged) return;
@@ -12182,10 +12194,10 @@
     const deliberationMs = Math.round(performance.now() - startTime);
     const deliberationSec = +(deliberationMs / 1000).toFixed(2);
 
-    const emailInput = document.querySelector('input[type="email"], input[placeholder*="EMAIL" i]');
-    const emailEntered = emailInput ? emailInput.value.trim().length > 0 : false;
+    const emailEntered = hasEmailEntry();
 
-    const checkboxes = document.querySelectorAll('.klaviyo-form input[type="checkbox"], [role="dialog"] input[type="checkbox"]');
+    const popup = getPopupContainer();
+    const checkboxes = popup ? popup.querySelectorAll('input[type="checkbox"]') : [];
     let checkboxSummary = "none";
     if (checkboxes.length > 0) {
       const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
@@ -12245,32 +12257,48 @@
     });
   }
 
-  // Listen for user clicks on the pop-up buttons
+  document.addEventListener("input", function (event) {
+    const target = event.target;
+    if (
+      target.matches('input[type="email"], input[placeholder*="EMAIL" i]') &&
+      getPopupContainer()?.contains(target) &&
+      target.value.trim()
+    ) {
+      emailWasEntered = true;
+    }
+  }, true);
+
+  // Record only the popup's explicit response choices.
   document.addEventListener("click", function (event) {
     const target = event.target;
-
-    const submitBtn = target.closest('button.needsclick, [type="submit"]');
-    if (submitBtn && !submitBtn.getAttribute("aria-label")?.toLowerCase().includes("close")) {
-      const btnText = submitBtn.innerText.trim().toLowerCase();
-      if (submitBtn.matches(".klaviyo-form-button") || btnText.includes("yes") || btnText.includes("save") || btnText.includes("ja")) {
-        event.preventDefault();
-        logAndShowNextStep("clicked_submit_accept");
-        return;
-      }
-    }
-
-    const declineLink = target.closest('a.klaviyo-form-richtext, [role="dialog"] a');
-    if (declineLink) {
-      event.preventDefault();
-      logAndShowNextStep("clicked_decline_text_link");
-      return;
-    }
+    const popup = getPopupContainer();
+    if (!popup || !popup.contains(target)) return;
 
     const closeBtn = target.closest('[aria-label="Close dialog"], .klaviyo-close-form, button[aria-label*="close" i]');
     if (closeBtn) {
       event.preventDefault();
       logAndShowNextStep("clicked_close_x_button");
       return;
+    }
+
+    const button = target.closest("button.klaviyo-form-button, button[type='submit']");
+    if (button && popup.contains(button)) {
+      const buttonText = button.innerText.trim().toLowerCase();
+      if (/no\s*thank\s*you/.test(buttonText)) {
+        event.preventDefault();
+        logAndShowNextStep("clicked_no_thank_you_button");
+      } else if (/save|sign\s*up|signup|yes|vip early access|subscribe/.test(buttonText)) {
+        event.preventDefault();
+        logAndShowNextStep("clicked_save_or_sign_up");
+      }
+      return;
+    }
+
+    const declineLink = target.closest("a");
+    const linkText = declineLink?.innerText.trim().toLowerCase() || "";
+    if (declineLink && popup.contains(declineLink) && /rather pay|no\s*thank\s*you/.test(linkText)) {
+      event.preventDefault();
+      logAndShowNextStep("clicked_rather_pay_full_price_link");
     }
   }, true);
 
