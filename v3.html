@@ -12240,7 +12240,7 @@
     const submitBtn = target.closest('button.needsclick, [type="submit"]');
     if (submitBtn && !submitBtn.getAttribute("aria-label")?.toLowerCase().includes("close")) {
       const btnText = submitBtn.innerText.trim().toLowerCase();
-      if (btnText.includes("yes") || btnText.includes("save") || btnText.includes("ja")) {
+      if (submitBtn.matches(".klaviyo-form-button") || btnText.includes("yes") || btnText.includes("save") || btnText.includes("ja")) {
         event.preventDefault();
         logAndShowNextStep("clicked_submit_accept");
         return;
