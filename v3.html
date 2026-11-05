@@ -136,7 +136,6 @@
 </div><div id=shopify-section-sections--30838612394248__header class="shopify-section shopify-section-group-header-group site-header-wrapper">
 <script></script>
 <style data-shopify class=sf-hidden>.site-logo{max-width:150px}.site-logo-image{max-height:40px}</style>
-<div style="background:#162b75;color:#fff;text-align:center;padding:5px 8px;font:600 12px Arial,sans-serif;letter-spacing:.08em">EXPERIMENT VERSION: V3</div>
 <header class="site-header site-header-nav--open" role=banner data-site-header>
  <div class="site-header-main site-header--full-width" data-site-header-main data-site-header-sticky data-site-header-mobile-search-button>
  <button class=site-header-menu-toggle data-menu-toggle>
@@ -12204,6 +12203,23 @@
     ? "v3_condition"
     : sessionStorage.getItem("assigned_condition") || path;
 
+  const VERSION_LABEL = "EXPERIMENT VERSION: V3";
+  const addVersionBannerToPopup = () => {
+    const form = document.querySelector(".klaviyo-form");
+    if (!form || form.querySelector(".experiment-version-banner")) return;
+
+    const banner = document.createElement("div");
+    banner.className = "experiment-version-banner";
+    banner.textContent = VERSION_LABEL;
+    banner.style.cssText = "margin-top:56px;background:#162b75;color:#fff;text-align:center;padding:12px 8px;font:700 16px Arial,sans-serif;letter-spacing:.08em;width:100%;box-sizing:border-box";
+    (form.firstElementChild || form).prepend(banner);
+  };
+  addVersionBannerToPopup();
+  new MutationObserver(addVersionBannerToPopup).observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
   const getSwedenTimestamp = (date = new Date()) => {
     const parts = new Intl.DateTimeFormat("sv-SE", {
       timeZone: "Europe/Stockholm",
@@ -12278,35 +12294,14 @@
       if (result.status !== "success") throw new Error("Submission endpoint did not confirm success");
     });
 
-    // Transform the pop-up content to show a manual link to the survey instead of auto-opening it
-    const modalContent = document.querySelector('.klaviyo-form, [role="dialog"]');
-    if (modalContent) {
-      modalContent.innerHTML = `
-        <div style="text-align: center; padding: 30px 20px; font-family: sans-serif; color: #333;">
-          <h2 style="font-size: 22px; margin-bottom: 12px; color: #162b75;">Choice Recorded ✓</h2>
-          <p style="font-size: 14px; line-height: 1.5; margin-bottom: 20px;">
-            Thank you for completing this step of the experiment. Open the post-test questionnaire below; your participant ID is prefilled.
-          </p>
-          <p style="font-size: 16px; line-height: 1.5; margin-bottom: 20px;">
-            Participant ID: <strong><code>${participantId}</code></strong>
-          </p>
-          <p id="sheets-submission-status" role="status" style="font-size: 13px; margin-bottom: 16px;">Sending experiment data…</p>
-          <a href="${SURVEY_URL}?usp=pp_url&entry.1275696794=${encodeURIComponent(participantId)}"
-             target="_blank" 
-             style="display: inline-block; background-color: #162b75; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 14px;">
-             Open Post-Test Questionnaire →
-          </a>
-        </div>
-      `;
-    }
-
-    submission.then(() => {
-      const status = document.getElementById("sheets-submission-status");
-      if (status) status.textContent = "Data saved to Google Sheets.";
-    }).catch(error => {
+    const redirectTimer = window.setTimeout(() => {
+      window.location.replace("/completed.html");
+    }, 5000);
+    submission.catch(error => {
       console.error("Google Sheets submission failed:", error);
-      const status = document.getElementById("sheets-submission-status");
-      if (status) status.textContent = "Could not send experiment data. Please notify the researcher.";
+    }).finally(() => {
+      window.clearTimeout(redirectTimer);
+      window.location.replace("/completed.html");
     });
   }
 
@@ -12317,6 +12312,11 @@
     const submitBtn = target.closest('button.needsclick, [type="submit"]');
     if (submitBtn && !submitBtn.getAttribute("aria-label")?.toLowerCase().includes("close")) {
       const btnText = submitBtn.innerText.trim().toLowerCase();
+      if (btnText.includes("no thank you") || btnText.includes("no thanks") || btnText.includes("decline")) {
+        event.preventDefault();
+        logAndShowNextStep("clicked_submit_decline");
+        return;
+      }
       if (submitBtn.matches(".klaviyo-form-button") || btnText.includes("yes") || btnText.includes("save") || btnText.includes("ja")) {
         event.preventDefault();
         logAndShowNextStep("clicked_submit_accept");
