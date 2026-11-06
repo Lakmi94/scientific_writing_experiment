@@ -89,6 +89,11 @@
         http-equiv=content-security-policy
         content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; font-src 'self' data:; img-src 'self' data:; style-src 'unsafe-inline'; media-src 'self' data:; script-src 'unsafe-inline' data:; object-src 'self' data:; frame-src 'self' data:; form-action 'none'; base-uri 'none';">
         <style>
+        [role="dialog"][aria-label="POPUP Form"]:not(.popup-delay-ready) {
+          visibility: hidden !important;
+          pointer-events: none !important;
+        }
+
         @media (max-width: 600px) {
           [role="dialog"] [data-testid="POPUP"] {
             width: calc(100vw - 16px) !important;
@@ -15040,10 +15045,37 @@
     banner.style.cssText = "margin-top:56px;background:#162b75;color:#fff;text-align:center;padding:12px 8px;font:700 16px Arial,sans-serif;letter-spacing:.08em;width:100%;box-sizing:border-box";
     (form.firstElementChild || form).prepend(banner);
   };
-  addVersionBannerToPopup();
-  new MutationObserver(addVersionBannerToPopup).observe(document.body, {
+  const popupTimers = new WeakMap();
+  const delayPopupOpening = () => {
+    document.querySelectorAll('[role="dialog"][aria-label="POPUP Form"]').forEach((popup) => {
+      if (getComputedStyle(popup).display === "none") {
+        const timer = popupTimers.get(popup);
+        if (timer) window.clearTimeout(timer);
+        popupTimers.delete(popup);
+        popup.classList.remove("popup-delay-pending", "popup-delay-ready");
+        return;
+      }
+
+      if (popup.classList.contains("popup-delay-pending") || popup.classList.contains("popup-delay-ready")) return;
+
+      popup.classList.add("popup-delay-pending");
+      popupTimers.set(popup, window.setTimeout(() => {
+        popup.classList.remove("popup-delay-pending");
+        popup.classList.add("popup-delay-ready");
+        popupTimers.delete(popup);
+      }, 1500));
+    });
+  };
+  const initializePopup = () => {
+    addVersionBannerToPopup();
+    delayPopupOpening();
+  };
+  initializePopup();
+  new MutationObserver(initializePopup).observe(document.body, {
     childList: true,
-    subtree: true
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["style"]
   });
 
   const getSwedenTimestamp = (date = new Date()) => {
