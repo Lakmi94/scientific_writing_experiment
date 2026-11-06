@@ -20,8 +20,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
 <style>
 [role="dialog"][aria-label="POPUP Form"]:not(.popup-delay-ready) {
-  visibility: hidden !important;
-  pointer-events: none !important;
+  display: none !important;
 }
 
 @media (max-width: 600px) {
@@ -12222,7 +12221,7 @@
   const popupTimers = new WeakMap();
   const delayPopupOpening = () => {
     document.querySelectorAll('[role="dialog"][aria-label="POPUP Form"]').forEach((popup) => {
-      if (getComputedStyle(popup).display === "none") {
+      if (popup.style.display === "none") {
         const timer = popupTimers.get(popup);
         if (timer) window.clearTimeout(timer);
         popupTimers.delete(popup);
@@ -12237,7 +12236,7 @@
         popup.classList.remove("popup-delay-pending");
         popup.classList.add("popup-delay-ready");
         popupTimers.delete(popup);
-      }, 3000));
+      }, 2000));
     });
   };
   const initializePopup = () => {
