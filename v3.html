@@ -19,11 +19,6 @@
 <meta property=og:url content=https://kroppsbutiken.se/>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
 <style>
-[role="dialog"][aria-label="POPUP Form"]:not(.popup-delay-ready) {
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
-
 @media (max-width: 600px) {
   [role="dialog"] [data-testid="POPUP"] {
     width: calc(100vw - 16px) !important;
@@ -12223,35 +12218,6 @@
     ? "v3_condition"
     : sessionStorage.getItem("assigned_condition") || path;
 
-  const popupTimers = new WeakMap();
-  const delayPopupOpening = () => {
-    document.querySelectorAll('[role="dialog"][aria-label="POPUP Form"]').forEach((popup) => {
-      if (getComputedStyle(popup).display === "none") {
-        const timer = popupTimers.get(popup);
-        if (timer) window.clearTimeout(timer);
-        popupTimers.delete(popup);
-        popup.classList.remove("popup-delay-pending", "popup-delay-ready");
-        return;
-      }
-
-      if (popup.classList.contains("popup-delay-pending") || popup.classList.contains("popup-delay-ready")) return;
-
-      popup.classList.add("popup-delay-pending");
-      popupTimers.set(popup, window.setTimeout(() => {
-        popup.classList.remove("popup-delay-pending");
-        popup.classList.add("popup-delay-ready");
-        popupTimers.delete(popup);
-      }, 3000));
-    });
-  };
-  delayPopupOpening();
-  new MutationObserver(delayPopupOpening).observe(document.body, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ["style"]
-  });
-
   const getSwedenTimestamp = (date = new Date()) => {
     const parts = new Intl.DateTimeFormat("sv-SE", {
       timeZone: "Europe/Stockholm",
@@ -12314,7 +12280,7 @@
     };
 
     // Send data to Google Sheets in the background
-    const submission = fetch(ENDPOINT_URL, {
+    fetch(ENDPOINT_URL, {
       method: "POST",
       keepalive: true,
       headers: { "Content-Type": "application/json" },
@@ -12324,17 +12290,12 @@
       return response.json();
     }).then(result => {
       if (result.status !== "success") throw new Error("Submission endpoint did not confirm success");
+    }).catch(error => {
+      console.error("Google Sheets submission failed:", error);
     });
 
-    const redirectTimer = window.setTimeout(() => {
-      window.location.replace("/completed.html");
-    }, 5000);
-    submission.catch(error => {
-      console.error("Google Sheets submission failed:", error);
-    }).finally(() => {
-      window.clearTimeout(redirectTimer);
-      window.location.replace("/completed.html");
-    });
+    const returnPage = encodeURIComponent(window.location.pathname);
+    window.location.replace(`/completed.html?return=${returnPage}`);
   }
 
   // Listen for user clicks on the pop-up buttons
