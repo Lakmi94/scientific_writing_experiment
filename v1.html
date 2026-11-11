@@ -110,16 +110,31 @@
             min-width: 0 !important;
             max-width: 100% !important;
             max-height: calc(100vh - 24px) !important;
+            max-height: calc(100dvh - 24px) !important;
             overflow-y: auto !important;
+            padding-bottom: 8px !important;
           }
 
           [role="dialog"] form.klaviyo-form > div:first-child {
             min-height: 0 !important;
+            justify-content: flex-start !important;
           }
 
           [role="dialog"] form.klaviyo-form img {
             max-width: 100% !important;
             height: auto !important;
+          }
+
+          [role="dialog"] form.klaviyo-form > div:first-child > [data-testid="form-row"]:first-child img {
+            max-height: 160px !important;
+            object-fit: contain !important;
+          }
+
+          [role="dialog"] form.klaviyo-form .klaviyo-form-button {
+            height: auto !important;
+            min-height: 44px !important;
+            padding: 8px 12px !important;
+            line-height: 1.2 !important;
           }
         }
         </style>
@@ -14825,25 +14840,6 @@
                                                             style=display:flex;flex-direction:row;align-items:stretch;position:relative><div
                                                                 component="[object Object]"
                                                                 data-testid=form-component
-                                                                class="needsclick go129975085 go303950465 kl-private-reset-css-Xuajs1"><button
-                                                                    type=button
-                                                                    tabindex=0
-                                                                    data-action-id=01M60W681A5FFRWB84X0JD61VB
-                                                                    class="needsclick go2346222327 go4033861592 klaviyo-form-button kl-private-reset-css-Xuajs1"><font
-                                                                        dir=auto
-                                                                        style=vertical-align:inherit><font
-                                                                            dir=auto
-                                                                            style=vertical-align:inherit>VIP
-                                                                            EARLY
-                                                                            ACCESS
-                                                                            ·
-                                                                            LIMITED
-                                                                            SEATS</font></font></button></div></div><div
-                                                            data-testid=form-row
-                                                            class="needsclick kl-private-reset-css-Xuajs1"
-                                                            style=display:flex;flex-direction:row;align-items:stretch;position:relative><div
-                                                                component="[object Object]"
-                                                                data-testid=form-component
                                                                 class="needsclick go1012985684 kl-private-reset-css-Xuajs1"><div
                                                                     id=rich-text-01M60W682AC8R81JF1QKJRS3DZ
                                                                     class="kl-private-reset-css-Xuajs1 go3176171171 klaviyo-form-richtext"
@@ -15023,28 +15019,6 @@
     ? "v3_condition"
     : sessionStorage.getItem("assigned_condition") || path;
 
-  const VERSION_LABEL = "EXPERIMENT VERSION: V1";
-  const addVersionBannerToPopup = () => {
-    const form = document.querySelector(".klaviyo-form");
-    if (!form) return;
-
-    const formContent = form.firstElementChild;
-    if (formContent?.style.minHeight === "680px") {
-      formContent.style.minHeight = "660px";
-    }
-
-    form.querySelectorAll("button.klaviyo-form-button.go749953356").forEach((button) => {
-      button.style.setProperty("height", "58px", "important");
-    });
-
-    if (form.querySelector(".experiment-version-banner")) return;
-
-    const banner = document.createElement("div");
-    banner.className = "experiment-version-banner";
-    banner.textContent = VERSION_LABEL;
-    banner.style.cssText = "margin-top:56px;background:#162b75;color:#fff;text-align:center;padding:12px 8px;font:700 16px Arial,sans-serif;letter-spacing:.08em;width:100%;box-sizing:border-box";
-    (form.firstElementChild || form).prepend(banner);
-  };
   const popupTimers = new WeakMap();
   const delayPopupOpening = () => {
     document.querySelectorAll('[role="dialog"][aria-label="POPUP Form"]').forEach((popup) => {
@@ -15066,12 +15040,8 @@
       }, 3000));
     });
   };
-  const initializePopup = () => {
-    addVersionBannerToPopup();
-    delayPopupOpening();
-  };
-  initializePopup();
-  new MutationObserver(initializePopup).observe(document.body, {
+  delayPopupOpening();
+  new MutationObserver(delayPopupOpening).observe(document.body, {
     childList: true,
     subtree: true,
     attributes: true,
@@ -15199,3 +15169,8 @@
 
 })();
 </script>
+<style>
+  .klaviyo-close-form {
+    display: none !important;
+  }
+</style>
