@@ -42,35 +42,22 @@
       line-height: 1.5;
     }
 
-    a {
-      display: inline-block;
-      margin-top: 24px;
-      padding: 12px 20px;
-      border-radius: 8px;
-      background: #162b75;
-      color: #fff;
-      font-size: 16px;
+    .banner {
+      margin-top: 20px;
+      padding: 14px 18px;
+      border-radius: 10px;
+      background: #eef2ff;
+      color: #162b75;
+      font-size: 18px;
       font-weight: 700;
-      text-decoration: none;
-    }
-
-    a:focus-visible {
-      outline: 3px solid #536dc3;
-      outline-offset: 3px;
+      border: 1px solid #c9d4ff;
     }
   </style>
 </head>
 <body>
   <main>
     <h1>Experiment completed</h1>
-    <p>You can go back to the form.</p>
-    <a id="return-to-study" href="/index.html">Return to the study</a>
+    <div class="banner">Please go back to the survey</div>
   </main>
-  <script>
-    const returnPage = new URLSearchParams(window.location.search).get("return");
-    if (["/v1.html", "/v2.html", "/v3.html"].includes(returnPage)) {
-      document.getElementById("return-to-study").href = returnPage;
-    }
-  </script>
 </body>
 </html>
